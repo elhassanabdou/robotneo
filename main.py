@@ -26,9 +26,8 @@ basic.pause(100)
 while True:
     distance = maqueen.ultrasonic(PingUnit.CENTIMETERS)
     if distance < 20:
-        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CCW, 200)
-        basic.pause(400)
-        maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 200)
-        basic.pause(200)
+        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CCW, 60)
+    elif distance < 30:
+        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 0)
     else : 
         maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 200)
