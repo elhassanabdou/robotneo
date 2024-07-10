@@ -1,33 +1,32 @@
-distance = 0
-maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 255)
-basic.pause(400)
-maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CCW, 220)
-basic.pause(400)
-maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 128)
-basic.pause(400)
-maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 128)
-basic.pause(400)
-botLight = neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB)
-maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 0)
-botLight.set_pixel_color(0, neopixel.colors(NeoPixelColors.INDIGO))
-botLight.show()
-basic.pause(400)
-botLight.set_pixel_color(1, neopixel.colors(NeoPixelColors.GREEN))
-botLight.set_pixel_color(2, neopixel.colors(NeoPixelColors.BLUE))
-botLight.set_pixel_color(3, neopixel.colors(NeoPixelColors.VIOLET))
-pins.digital_write_pin(DigitalPin.P0, 1)
-basic.pause(100)
-pins.digital_write_pin(DigitalPin.P0, 0)
-basic.pause(100)
-pins.digital_write_pin(DigitalPin.P0, 1)
-basic.pause(100)
-pins.digital_write_pin(DigitalPin.P0, 0)
-basic.pause(100)
-while True:
-    distance = maqueen.ultrasonic(PingUnit.CENTIMETERS)
-    if distance < 20:
-        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CCW, 60)
-    elif distance < 30:
-        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 0)
-    else : 
-        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 200)
+# Initialize the NeoPixel strip
+strip = neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB)
+strip.set_brightness(255)
+strip.show_rainbow(1, 360)
+
+# Rotate the NeoPixel strip colors
+def on_every_interval():
+    strip.rotate(1)
+    strip.show()
+
+loops.every_interval(500, on_every_interval)
+
+# Main logic for the Maqueen robot's motor control
+def on_forever():
+    left_patrol = maqueen.read_patrol(maqueen.Patrol.PATROL_LEFT)
+    right_patrol = maqueen.read_patrol(maqueen.Patrol.PATROL_RIGHT)
+
+    if left_patrol == 0 and right_patrol == 0:
+        maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 50)
+    elif left_patrol == 0 and right_patrol == 1:
+        maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 50)
+        maqueen.motor_stop(maqueen.Motors.M1)
+    elif left_patrol == 1 and right_patrol == 0:
+        maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 50)
+        maqueen.motor_stop(maqueen.Motors.M2)
+    elif left_patrol == 1 and right_patrol == 1:
+        maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 50)
+        maqueen.motor_stop(maqueen.Motors.M2)
+    else:
+        maqueen.motor_stop(maqueen.Motors.ALL)
+
+basic.forever(on_forever)

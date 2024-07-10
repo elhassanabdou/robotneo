@@ -1,36 +1,30 @@
-let distance = 0
-maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 255)
-basic.pause(400)
-maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CCW, 220)
-basic.pause(400)
-maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, 128)
-basic.pause(400)
-maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, 128)
-basic.pause(400)
-let botLight = neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB)
-maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 0)
-botLight.setPixelColor(0, neopixel.colors(NeoPixelColors.Indigo))
-botLight.show()
-basic.pause(400)
-botLight.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
-botLight.setPixelColor(2, neopixel.colors(NeoPixelColors.Blue))
-botLight.setPixelColor(3, neopixel.colors(NeoPixelColors.Violet))
-pins.digitalWritePin(DigitalPin.P0, 1)
-basic.pause(100)
-pins.digitalWritePin(DigitalPin.P0, 0)
-basic.pause(100)
-pins.digitalWritePin(DigitalPin.P0, 1)
-basic.pause(100)
-pins.digitalWritePin(DigitalPin.P0, 0)
-basic.pause(100)
-while (true) {
-    distance = maqueen.Ultrasonic(PingUnit.Centimeters)
-    if (distance < 20) {
-        maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CCW, 60)
-    } else if (distance < 30) {
-        maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 0)
+let right_patrol = 0
+let left_patrol = 0
+// Initialize the NeoPixel strip
+let strip = neopixel.create(DigitalPin.P15, 4, NeoPixelMode.RGB)
+strip.setBrightness(255)
+strip.showRainbow(1, 360)
+// Rotate the NeoPixel strip colors
+loops.everyInterval(500, function () {
+    strip.rotate(1)
+    strip.show()
+})
+// Main logic for the Maqueen robot's motor control
+basic.forever(function () {
+    left_patrol = maqueen.readPatrol(maqueen.Patrol.PatrolLeft)
+    right_patrol = maqueen.readPatrol(maqueen.Patrol.PatrolRight)
+    if (left_patrol == 0 && right_patrol == 0) {
+        maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 50)
+    } else if (left_patrol == 0 && right_patrol == 1) {
+        maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, 50)
+        maqueen.motorStop(maqueen.Motors.M1)
+    } else if (left_patrol == 1 && right_patrol == 0) {
+        maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, 50)
+        maqueen.motorStop(maqueen.Motors.M2)
+    } else if (left_patrol == 1 && right_patrol == 1) {
+        maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, 50)
+        maqueen.motorStop(maqueen.Motors.M2)
     } else {
-        maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 200)
+        maqueen.motorStop(maqueen.Motors.All)
     }
-    
-}
+})
